@@ -28,11 +28,13 @@ const imageFile = z
     { message: "Only PNG, JPEG, JPG, or WEBP images are allowed" }
   );
 
-const singleImage = z.union([imageFile, z.url("Invalid image URL")]);
-
+const singleImage = z.union([
+  imageFile,
+  z.url("Invalid image URL"),
+]);
 export const updateProfileRequest = z.object({
   name: z.string().min(1, "Name is required").max(100),
-  image: singleImage,
+  image: singleImage.optional(),
 });
 
 export const changeRoleRequest = z.object({
@@ -40,6 +42,15 @@ export const changeRoleRequest = z.object({
   role : z.enum(["STAFF", "ADMIN"])
 })
 
+export const createUserRequest = z.object({
+  name: z.string().min(1, "Name is required").max(100),
+  email: z.email("Invalid email address"),
+  role: z.enum(["STAFF", "ADMIN"]).default("STAFF"),
+  image: singleImage
+})
+
+
+export type CreateUserRequest = z.infer<typeof createUserRequest>;
 export type ChangeRoleRequest = z.infer<typeof changeRoleRequest>;
 export type UserQuery = z.infer<typeof userQuery>;
 export type Pagination = z.infer<typeof pagination>;
