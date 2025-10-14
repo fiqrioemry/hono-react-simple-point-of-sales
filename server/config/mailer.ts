@@ -82,3 +82,24 @@ export async function sendResetLink({
     }),
   });
 }
+
+
+export async function sendNewAccountPassword({
+  to, subject,
+  password,
+}: {
+  to: string;
+  subject: string;
+  password: string;
+}) {
+  await transporter.sendMail({
+    to,
+    subject,
+    html: emailTemplate({
+      title: "Your account has been created",
+      message: `Your account has been created successfully. Your password is: ${password}`,
+      actionText: "Login",
+      actionUrl: `${APP_URL}/login`,
+    }),
+  });
+}
