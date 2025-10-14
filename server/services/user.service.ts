@@ -1,7 +1,9 @@
 import { prisma } from "@/config/database";
+import { sendNewAccountPassword } from "@/config/mailer";
 import { userResponse, UserResponse } from "@/schema/auth.schema";
 import {
   ChangeRoleRequest,
+  CreateUserRequest,
   pagination,
   Pagination,
   UpdateProfileRequest,
@@ -97,5 +99,50 @@ export class UserService {
     await prisma.user.update({where : {id : req.userId}, data : {role : req.role}})
 
     return "Role changed successfully";
+  }
+
+  static async create(req: CreateUserRequest): Promise<string> {
+    // check if email already exists
+    const isExist = await prisma.user.findUnique({
+      where: { email: req.email },
+    });
+    
+    // if email already exists, throw error
+    if (isExist) {
+      throw new HTTPException(400, { message: "Email already exists" });
+    }
+
+    // generate random password and hash before save
+    const randomPassword = Math.random().toString(24).slice(-8);
+    const hashedPassword = await Bun.password.hash(randomPassword);
+
+ 
+    // upload image for avatar
+    let imageUrl = null;
+    if (req.image instanceof File) {
+      imageUrl = await uploadImage(req.image);
+    }
+
+    // create new user
+    await prisma.user.create({
+      data: {
+        name: req.name,
+        email: req.email,
+        role: req.role,
+        image: imageUrl,
+        password: hashedPassword,
+      },
+    });
+
+    // send email to user with new password
+    await sendNewAccountPassword({
+      to: req.email,
+      subject: "Your new account password",
+      password: randomPassword,
+    });
+
+    // return response message
+    return "User created successfully";
+
   }
 }
