@@ -49,7 +49,15 @@ export const createUserRequest = z.object({
   image: singleImage
 })
 
+export const updateUserRequest = z.object({
+  userId : z.uuid("Invalid UUID"),
+  name: z.string().min(1, "Name is required").max(100).optional(),
+  email: z.email("Invalid email address").optional(),
+  image: singleImage.optional()
+})
 
+
+export type UpdateUserRequest = z.infer<typeof updateUserRequest>;
 export type CreateUserRequest = z.infer<typeof createUserRequest>;
 export type ChangeRoleRequest = z.infer<typeof changeRoleRequest>;
 export type UserQuery = z.infer<typeof userQuery>;
