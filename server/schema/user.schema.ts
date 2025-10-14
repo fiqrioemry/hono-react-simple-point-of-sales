@@ -35,6 +35,12 @@ export const updateProfileRequest = z.object({
   image: singleImage,
 });
 
+export const changeRoleRequest = z.object({
+  userId : z.uuid("Invalid UUID"),
+  role : z.enum(["STAFF", "ADMIN"])
+})
+
+export type ChangeRoleRequest = z.infer<typeof changeRoleRequest>;
 export type UserQuery = z.infer<typeof userQuery>;
 export type Pagination = z.infer<typeof pagination>;
 export type UpdateProfileRequest = z.infer<typeof updateProfileRequest>;

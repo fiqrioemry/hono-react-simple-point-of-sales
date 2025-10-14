@@ -1,6 +1,7 @@
 import { prisma } from "@/config/database";
 import { userResponse, UserResponse } from "@/schema/auth.schema";
 import {
+  ChangeRoleRequest,
   pagination,
   Pagination,
   UpdateProfileRequest,
@@ -82,5 +83,19 @@ export class UserService {
     });
 
     return userResponse.parse(updatedUser);
+  }
+
+  static async change(req : ChangeRoleRequest): Promise<string>{
+    // check if user exists
+    const isExist = await prisma.user.findUnique({where : {id:req.userId}})
+    
+    if (!isExist){
+      throw new HTTPException(404, {message : "User not found"});
+    }
+
+    // update role
+    await prisma.user.update({where : {id : req.userId}, data : {role : req.role}})
+
+    return "Role changed successfully";
   }
 }
