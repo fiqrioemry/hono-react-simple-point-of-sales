@@ -2,15 +2,16 @@ import { prisma } from "@/config/database";
 import { sendNewAccountPassword } from "@/config/mailer";
 import { userResponse, UserResponse } from "@/schema/auth.schema";
 import {
-  ChangeRoleRequest,
-  CreateUserRequest,
   pagination,
   Pagination,
-  UpdateProfileRequest,
   UserQuery,
+  ChangeRoleRequest,
+  CreateUserRequest,
+  UpdateProfileRequest,
+  UpdateUserRequest,
 } from "@/schema/user.schema";
-import { deleteImage, uploadImage } from "@/utils/uploader";
 import { HTTPException } from "hono/http-exception";
+import { deleteImage, uploadImage } from "@/utils/uploader";
 
 export class UserService {
   static async search(
@@ -60,7 +61,7 @@ export class UserService {
   static async updateProfile(
     userId: string,
     req: UpdateProfileRequest
-  ): Promise<any> {
+  ): Promise<{message : string, data : UserResponse}> {
     // get user data
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -84,7 +85,10 @@ export class UserService {
       data: { name: req.name, image: imageUrl },
     });
 
-    return userResponse.parse(updatedUser);
+    return {
+      message : "Profile updated successfully",
+      data : userResponse.parse(updatedUser),
+    }
   }
 
   static async change(req : ChangeRoleRequest): Promise<string>{
@@ -106,7 +110,7 @@ export class UserService {
     const isExist = await prisma.user.findUnique({
       where: { email: req.email },
     });
-    
+
     // if email already exists, throw error
     if (isExist) {
       throw new HTTPException(400, { message: "Email already exists" });
@@ -145,4 +149,39 @@ export class UserService {
     return "User created successfully";
 
   }
-}
+
+  static async update(req : UpdateUserRequest) : Promise<{message : string, data : UserResponse}>{
+    // check if user exists
+    const isExist = await prisma.user.findUnique({where : {id:req.userId}})
+
+    if (!isExist){
+      throw new HTTPException(404, {message : "User not found"});
+    }
+
+    const emailExist = await prisma.user.findUnique({where : {email : req.email}})
+    // if email is being updated, check if it already exists
+    if (req.email && emailExist && emailExist.id !== req.userId){
+      throw new HTTPException(400, {message : "Email already exists"});
+    }
+
+    let imageUrl = isExist.image;
+    // if new image is uploaded, upload it and delete old one
+    if (req.image instanceof File) {
+      imageUrl = await uploadImage(req.image);
+      deleteImage(isExist.image); // let this synchronous
+    }
+
+    // update user
+    const updatedUser = await prisma.user.update({where : {id : req.userId}, data : {
+      name : req.name,
+      email : req.email,
+      image : imageUrl
+    }})
+
+    return {
+      message : "User updated successfully",
+      data : userResponse.parse(updatedUser)
+    }
+
+    }
+  }
