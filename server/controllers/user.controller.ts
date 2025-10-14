@@ -1,5 +1,5 @@
 import { Context } from "hono";
-import { parseForm } from "@/utils/validator";
+import { parseForm, validate } from "@/utils/validator";
 import { successResponse } from "@/utils/response";
 import { UserService } from "@/services/user.service";
 import { updateProfileRequest, userQuery } from "@/schema/user.schema";
@@ -20,6 +20,7 @@ export class UserController {
 
   //   TODO : implement these methods
   static async changeRole(c: Context) {
+    const request = validate(c,)
     return successResponse(c, "User role changed successfully");
   }
 
