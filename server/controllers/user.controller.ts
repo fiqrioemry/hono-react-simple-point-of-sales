@@ -1,8 +1,8 @@
 import { Context } from "hono";
-import { parseForm, validate } from "@/utils/validator";
+import { parseForm } from "@/utils/validator";
 import { successResponse } from "@/utils/response";
 import { UserService } from "@/services/user.service";
-import { changeRoleRequest, updateProfileRequest, userQuery } from "@/schema/user.schema";
+import { changeRoleRequest, createUserRequest, updateProfileRequest, userQuery } from "@/schema/user.schema";
 
 export class UserController {
   static async getUsers(c: Context) {
@@ -18,7 +18,6 @@ export class UserController {
     return successResponse(c, "user profile updated successfully", response);
   }
 
-  //   TODO : implement these methods
   static async changeRole(c: Context) {
     const request = changeRoleRequest.parse(await c.req.json());
     const message = await UserService.change(request);
@@ -26,7 +25,9 @@ export class UserController {
   }
 
   static async createUsers(c: Context) {
-    return successResponse(c, "User created successfully");
+    const request = createUserRequest.parse(await c.req.json());
+    const message = await UserService.create(request);
+    return successResponse(c, message);
   }
 
   static async updateUsers(c: Context) {
