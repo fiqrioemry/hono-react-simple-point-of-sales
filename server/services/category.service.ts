@@ -1,19 +1,15 @@
-import {
-  CategoryResponse,
-  categoryResponse,
-  CreateCategoryRequest,
-  UpdateCategoryRequest,
-} from "@/schema/category.schema";
+import { CategoryResponse, categoryResponse, CreateCategoryRequest, UpdateCategoryRequest } from "@/schema/category.schema";
 import { prisma } from "@/config/database";
 import { HTTPException } from "hono/http-exception";
 
 export class CategoryService {
-  static async getAll(): Promise<{
+  static async getAllParent(): Promise<{
     message: string;
     response: CategoryResponse[];
   }> {
     // get all categories
     const categories = await prisma.category.findMany({
+      where: { parentId: null, level: 0 },
       include: {
         _count: {
           select: { products: true },
@@ -32,6 +28,18 @@ export class CategoryService {
     return {
       message: "Categories fetched successfully",
       response,
+    };
+  }
+
+  static async getAllChild(): Promise<{
+    message: string;
+    response: CategoryResponse[];
+  }> {
+    // get all categories
+
+    return {
+      message: "Child Categories fetched successfully",
+      response: [],
     };
   }
   static async create(req: CreateCategoryRequest): Promise<string> {

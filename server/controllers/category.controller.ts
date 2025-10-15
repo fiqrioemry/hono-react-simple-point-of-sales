@@ -1,15 +1,16 @@
-import {
-  categoryId,
-  createCategoryRequest,
-  updateCategoryRequest,
-} from "@/schema/category.schema";
+import { categoryId, createCategoryRequest, updateCategoryRequest } from "@/schema/category.schema";
 import { Context } from "hono";
 import { successResponse } from "@/utils/response";
 import { CategoryService } from "@/services/category.service";
 
 export class CategoryController {
-  static async getAllCategories(c: Context) {
-    const { message, response } = await CategoryService.getAll();
+  static async getAllParentCategories(c: Context) {
+    const { message, response } = await CategoryService.getAllParent();
+    return successResponse(c, message, response);
+  }
+
+  static async getAllChildCategories(c: Context) {
+    const { message, response } = await CategoryService.getAllChild();
     return successResponse(c, message, response);
   }
 

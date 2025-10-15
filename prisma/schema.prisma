@@ -64,6 +64,8 @@ model Category {
   parentId  String?
   level     Int      @default(0)
   name      String   @unique
+  parent    Category? @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryToCategory")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
