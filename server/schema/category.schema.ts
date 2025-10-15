@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 export const categoryResponse = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
+  parentId: z.uuid().nullable().optional(),
   name: z.string(),
   createdAt: z
     .date()
