@@ -12,15 +12,16 @@ export class CategoryService {
       where: { parentId: null, level: 0 },
       include: {
         _count: {
-          select: { products: true },
+          select: { products: true, children: true },
         },
       },
     });
 
     const result = categories.map((cat) => ({
       ...cat,
+      totalChild: cat._count.children,
       totalProducts: cat._count.products,
-      canDelete: cat._count.products === 0,
+      canDelete: cat._count.products === 0 && cat._count.children === 0,
     }));
 
     const response = categoryResponse.array().parse(result);
@@ -31,11 +32,27 @@ export class CategoryService {
     };
   }
 
-  static async getAllChild(): Promise<{
+  static async getAllChild(
+    parentId: string,
+    level: number
+  ): Promise<{
     message: string;
     response: CategoryResponse[];
   }> {
     // get all categories
+    const childCategories = await prisma.category.findMany({
+      where: { parentId: parentId, level: level },
+      include: {
+        _count: { select: { products: true, children: true } },
+      },
+    });
+
+    const result = childCategories.map((cat) => ({
+      ...cat,
+      totalChild: cat._count.children,
+      totalProducts: cat._count.products,
+      canDelete: cat._count.children === 0,
+    }));
 
     return {
       message: "Child Categories fetched successfully",
