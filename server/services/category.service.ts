@@ -36,7 +36,7 @@ export class CategoryService {
     message: string;
     response: CategoryResponse[];
   }> {
-    // get all categories
+    // get all child categories
     const childCategories = await prisma.category.findMany({
       where: { parentId: params.parentId, level: params.level },
       include: {
