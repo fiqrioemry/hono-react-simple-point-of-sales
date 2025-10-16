@@ -1,4 +1,4 @@
-import { categoryId, createCategoryRequest, updateCategoryRequest } from "@/schema/category.schema";
+import { categoryId, createCategoryRequest, getChildParams, updateCategoryRequest } from "@/schema/category.schema";
 import { Context } from "hono";
 import { successResponse } from "@/utils/response";
 import { CategoryService } from "@/services/category.service";
@@ -10,7 +10,10 @@ export class CategoryController {
   }
 
   static async getAllChildCategories(c: Context) {
-    const { message, response } = await CategoryService.getAllChild();
+    const parentId = c.req.param("parentId");
+    const level = Number(c.req.query("level") ?? 1);
+    const params = getChildParams.parse({ parentId, level });
+    const { message, response } = await CategoryService.getAllChild(params);
     return successResponse(c, message, response);
   }
 
