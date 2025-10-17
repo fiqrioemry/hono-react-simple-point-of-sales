@@ -1,7 +1,7 @@
-import { categoryId, createCategoryRequest, getChildParams, updateCategoryRequest } from "@/schema/category.schema";
 import { Context } from "hono";
 import { successResponse } from "@/utils/response";
 import { CategoryService } from "@/services/category.service";
+import { categoryId, createCategoryRequest, getChildParams, updateCategoryRequest } from "@/schema/category.schema";
 
 export class CategoryController {
   static async getAllParentCategories(c: Context) {
