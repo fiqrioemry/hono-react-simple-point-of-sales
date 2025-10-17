@@ -68,6 +68,17 @@ model Room {
   id String @id @default(uuid())
   name String @unique
   outletId String
+
+  tables Table[] 
+}
+
+model Table {
+  id String @id @default(uuid())
+  name String @unique
+  roomId String
+  isOccupied Boolean @default(false)
+
+  room Room @relation(fields: [roomId], references: [id])
 }
 
 
