@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import auth from "./auth.route";
 import user from "./user.route";
+import outlet from "./outlet.route";
 import category from "./category.route";
 import products from "./product.route";
 
@@ -22,5 +23,6 @@ router.route("/api/v1/auth", auth);
 router.route("/api/v1/users", user);
 router.route("/api/v1/products", products);
 router.route("/api/v1/categories", category);
+router.route("/api/v1/outlets", outlet);
 
 export default router;
